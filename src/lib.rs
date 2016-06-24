@@ -5,6 +5,7 @@ pub use elf_sections::{ElfSectionsTag, ElfSection, ElfSectionIter, ElfSectionTyp
 pub use elf_sections::{ELF_SECTION_WRITABLE, ELF_SECTION_ALLOCATED, ELF_SECTION_EXECUTABLE};
 pub use memory_map::{MemoryMapTag, MemoryArea, MemoryAreaIter};
 pub use modules::ModulesTag;
+pub use framebuffer_info::{FramebufferInfoTag, FrameBufferType, RgbColor, RgbColorIter, RGBFieldInfo};
 
 #[macro_use]
 extern crate bitflags;
@@ -13,6 +14,7 @@ mod boot_loader_name;
 mod elf_sections;
 mod memory_map;
 mod modules;
+mod framebuffer_info;
 
 pub unsafe fn load(address: usize) -> &'static BootInformation {
     let multiboot = &*(address as *const BootInformation);
@@ -50,6 +52,10 @@ impl BootInformation {
 
     pub fn modules_tag(&self) -> Option<&'static ModulesTag> {
         self.get_tag(3).map(|tag| unsafe{&*(tag as *const Tag as *const ModulesTag)})
+    }
+
+    pub fn framebuffer_info_tag(&self) -> Option<&'static FramebufferInfoTag> {
+        self.get_tag(8).map(|tag| unsafe{&*(tag as *const Tag as *const FramebufferInfoTag)})
     }
 
     fn has_valid_end_tag(&self) -> bool {
