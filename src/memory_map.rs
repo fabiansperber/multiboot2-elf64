@@ -27,6 +27,27 @@ pub struct MemoryArea {
     _reserved: u32,
 }
 
+#[cfg(feature = "all-memory-areas")]
+#[derive(Debug)]
+pub enum MemoryType {
+    AvailableRam = 1,
+    AcpiInformation = 3,
+    HybernationPreserve = 4,
+    Reserved,
+}
+
+#[cfg(feature = "all-memory-areas")]
+impl MemoryArea {
+    pub fn get_type(&self) -> MemoryType {
+        match self.typ {
+            1 => MemoryType::AvailableRam,
+            3 => MemoryType::AcpiInformation,
+            4 => MemoryType::HybernationPreserve,
+            _ => MemoryType::Reserved,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct MemoryAreaIter {
     current_area: *const MemoryArea,
@@ -43,9 +64,13 @@ impl Iterator for MemoryAreaIter {
             let area = unsafe{&*self.current_area};
             self.current_area = ((self.current_area as u32) + self.entry_size)
                 as *const MemoryArea;
-            if area.typ == 1 {
+            if cfg!(feature = "all-memory-areas") {
                 Some(area)
-            } else {self.next()}
+            } else {
+                if area.typ == 1 {
+                    Some(area)
+                } else {self.next()}
+            }
         }
     }
 }

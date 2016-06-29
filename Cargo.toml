@@ -6,3 +6,7 @@ authors = ["Philipp Oppermann <dev@phil-opp.com>"]
 [dependencies.bitflags]
 version = "0.4.0"
 features = ["no_std"]
+
+[features]
+# have access to all memory areas
+all-memory-areas = []
